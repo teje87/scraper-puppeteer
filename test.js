@@ -1,23 +1,36 @@
 const puppeteer = require('puppeteer');
-const rootPage = "http://www.policlinicagipuzkoa.com/buscar-nacimiento/page/";
+const rootPage = "http://es.surf-forecast.com/breaks/Hendaye-Plage/forecasts/latest";
 
 
 
-let scrape = async (index) => {
+let scrape = async () => {
     
     //Abrir pagina 
     const browser = await puppeteer.launch({headless: true});
     const page = await browser.newPage();
-    await page.goto(rootPage+index,{timeout:0});
+    await page.goto(rootPage,{timeout:0});
     
     //Seleccionar elementos
     const result = await page.evaluate(() => {
-        let elements = document.querySelectorAll('.datos-nacimientos'); 
+        let elements = document.querySelectorAll('#target-for-range-tabs > tbody > tr.lar.hea.table-start.class_name'); 
+        let horas = document.querySelectorAll('#target-for-range-tabs > tbody > tr.hea1.table-end.lar.class_name > td');
         let data = [];
         for (var element of elements){ 
-            let nombre = element.children[0].innerText;
-            let fecha = element.children[1].innerText;
-            data.push({nombre,fecha}); 
+            /* let dia = element.childNodes[1].nodeName; */
+            let firstDay = element.childNodes[1].innerText;
+            let secondDay = element.childNodes[2].innerText;
+            let thirdDay = element.childNodes[3].innerText;
+
+            /* let fecha = element.children[1].innerText */;
+            data.push({firstDay,secondDay,thirdDay}); 
+        }
+
+        for (var hora of horas){ 
+            /* let dia = element.childNodes[1].nodeName; */
+            let horaexacta = hora.innerText;    
+
+            /* let fecha = element.children[1].innerText */;
+            data.push({horaexacta}); 
         }
 
         return data; 
@@ -28,9 +41,7 @@ let scrape = async (index) => {
 };
 
 //Repetir ciclo sobre i paginas
-for(i=0;i<8;i++){
-    scrape(i).then((value) => {
-        console.log(value); 
-    
-    })
-}
+
+scrape().then((value) => {
+    console.log(value); 
+});
