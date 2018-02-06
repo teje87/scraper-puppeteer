@@ -21,15 +21,13 @@ let scrape = async () => {
             let secondDay = element.childNodes[2].innerText;
             let thirdDay = element.childNodes[3].innerText;
 
-            /* let fecha = element.children[1].innerText */;
+            
             data.push({firstDay,secondDay,thirdDay}); 
         }
 
         for (var hora of horas){ 
-            /* let dia = element.childNodes[1].nodeName; */
+        
             let horaexacta = hora.innerText;    
-
-            /* let fecha = element.children[1].innerText */;
             data.push({horaexacta}); 
         }
 
@@ -39,8 +37,6 @@ let scrape = async () => {
     browser.close();
     return result; 
 };
-
-//Repetir ciclo sobre i paginas
 
 scrape().then((value) => {
     console.log(value); 
