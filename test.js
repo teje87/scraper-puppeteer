@@ -6,7 +6,7 @@ const rootPage = "http://es.surf-forecast.com/breaks/Playade-Gros/forecasts/late
 let scrape = async () => {
     
     //Abrir pagina 
-    const browser = await puppeteer.launch({args: ['--no-sandbox']});
+    const browser = await puppeteer.launch({args: ['--no-sandbox'], timeout:0});
     const page = await browser.newPage();
     await page.goto(rootPage);
     
@@ -16,7 +16,12 @@ let scrape = async () => {
         let horas = document.querySelectorAll('#target-for-range-tabs > tbody > tr.hea1.table-end.lar.class_name > td');
         let swells = document.querySelectorAll('.swell-icon-val');
         let swellDirections = document.querySelectorAll('#target-for-range-tabs > tbody > tr:nth-child(4) > td')
+
+        let horasArr = [];
+        let swellArr = [];
+        let swellDirArr = [];
         let data = [];
+
         
         //DIAS
         for (var element of elements){ 
@@ -32,24 +37,28 @@ let scrape = async () => {
         //HORAS
         for (var hora of horas){ 
         
-            let horaexacta = hora.innerText;    
-            data.push({horaexacta}); 
+            let time = hora.innerText;    
+            horasArr.push({time}); 
         }
 
         //SWELL
         for( var swell of swells){
             let measure = swell.childNodes[0].nodeValue;
-            data.push({measure});
+            swellArr.push({measure});
         }
 
         //SWELL DIRECTION
         for( var swellDirection of swellDirections){
             let direction = swellDirection.childNodes[2].nodeValue;
-            data.push({direction});
+            swellDirArr.push({direction});
         }
 
+        //COMPLETE CHART (TIME, SWELL, DIRECTION)
+        var chart = horasArr.map((hora,i)=>{
+            return  newChart = {...hora, ...swellArr[i],...swellDirArr[i]} 
+        })
 
-        return data; 
+        return chart; 
     });
 
     browser.close();
