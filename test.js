@@ -1,29 +1,31 @@
 const puppeteer = require('puppeteer');
 const rootPage = "http://es.surf-forecast.com/breaks/Playade-Gros/forecasts/latest";
 
+// (TODO) Make an array of webpages of different spots 
 
 
 let scrape = async () => {
     
-    //Abrir pagina 
+    //OPEN PAGE
     const browser = await puppeteer.launch({args: ['--no-sandbox'], timeout:0});
     const page = await browser.newPage();
     await page.goto(rootPage);
     
-    //Seleccionar elementos
+    //SELECT ITEMS
     const result = await page.evaluate(() => {
         let elements = document.querySelectorAll('#target-for-range-tabs > tbody > tr.lar.hea.table-start.class_name'); 
         let horas = document.querySelectorAll('#target-for-range-tabs > tbody > tr.hea1.table-end.lar.class_name > td');
         let swells = document.querySelectorAll('.swell-icon-val');
         let swellDirections = document.querySelectorAll('#target-for-range-tabs > tbody > tr:nth-child(4) > td')
 
+        
         let horasArr = [];
         let swellArr = [];
         let swellDirArr = [];
-        let data = [];
+        let daysArr = [];
 
         
-        //DIAS
+        //DAYS
         for (var element of elements){ 
         
             let firstDay = element.childNodes[1].innerText;
@@ -34,7 +36,7 @@ let scrape = async () => {
             data.push({firstDay,secondDay,thirdDay}); 
         }
 
-        //HORAS
+        //HOURS
         for (var hora of horas){ 
         
             let time = hora.innerText;    
@@ -53,7 +55,7 @@ let scrape = async () => {
             swellDirArr.push({direction});
         }
 
-        //COMPLETE CHART (TIME, SWELL, DIRECTION)
+        //COMPLETE CHART (HOUR, SWELL, DIRECTION)
         var chart = horasArr.map((hora,i)=>{
             return  newChart = {...hora, ...swellArr[i],...swellDirArr[i]} 
         })
@@ -61,10 +63,12 @@ let scrape = async () => {
         return chart; 
     });
 
+
     browser.close();
     return result; 
 };
 
+//SCRAPE FORECAST
 scrape().then((value) => {
     console.log(value); 
 });
